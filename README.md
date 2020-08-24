@@ -7,5 +7,5 @@ It is very difficult to integrate and manage internal operational tools in the K
 ## Conceptual Architecture
 
 ### YouTube Link
-[![예제](http://img.youtube.com/vi/sz5jQHiurg0/0.jpg)](https://youtu.be/sz5jQHiurg0?t=0s)
+[![예제](http://img.youtube.com/vi/xOya8uWrVk0/0.jpg)](https://youtu.be/xOya8uWrVk0?t=0s)
 

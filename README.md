@@ -1,4 +1,4 @@
-![https://raw.githubusercontent.com/NexClipper/metric-operator/master/asset/MetricOperator_Logo_B_TP_BG.png](https://raw.githubusercontent.com/NexClipper/metric-operator/master/asset/MetricOperator_Logo_B_TP_BG.png)
+![https://raw.githubusercontent.com/NexClipper/metric-operator/master/asset/MetricOperator_Logo_D.png](https://raw.githubusercontent.com/NexClipper/metric-operator/master/asset/MetricOperator_Logo_D.png)
 
 # metric-operator
 

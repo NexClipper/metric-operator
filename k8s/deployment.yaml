@@ -15,7 +15,7 @@ spec:
     spec:
       serviceAccountName: nexc
       containers:
-      - image: nexclipper/metric-operator:0.1.6
+      - image: nexclipper/metric-operator:0.1.7
         imagePullPolicy: IfNotPresent 
         name: metricops
         ports:
@@ -26,4 +26,3 @@ spec:
       volumes:
       - name: data
         emptyDir: {}
-status: {}

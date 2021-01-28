@@ -5,7 +5,7 @@ redis-server --daemonize yes && sleep 1
 
 REDIS_CMD="/usr/local/bin/redis-cli"
 if [[ "$REDIS_KEY" == "" ]]; then REDIS_KEY="kubernetes";fi
-if [[ "$REDIS_HOST" == "" ]]; then REDIS_HOST="10.10.33.15";fi
+if [[ "$REDIS_HOST" == "" ]]; then REDIS_HOST="localhost";fi
 SERVICEACCOUNT="nexc"
 K8S_API_SVR="https://kubernetes.default.svc"
 K8S_SERVICE_AC="/var/run/secrets/kubernetes.io/serviceaccount"

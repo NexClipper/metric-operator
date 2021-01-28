@@ -1,41 +1,44 @@
-#!/bin/bash
+#!/bin/sh
 
 ## Run redis server daemon
 redis-server --daemonize yes && sleep 1 
 
-## Run script every 10 seconds
-REDISCMD="redis-cli"
+REDIS_CMD="/usr/local/bin/redis-cli"
+if [[ "$REDIS_KEY" == "" ]]; then REDIS_KEY="kubernetes";fi
+if [[ "$REDIS_HOST" == "" ]]; then REDIS_HOST="10.10.33.15";fi
 SERVICEACCOUNT="nexc"
-KEY="kubernetes"
 K8S_API_SVR="https://kubernetes.default.svc"
-SERVICEAC="/var/run/secrets/kubernetes.io/serviceaccount"
-K8S_NAMESPACE=$(cat ${SERVICEAC}/namespace)
-K8S_TOKEN=$(cat ${SERVICEAC}/token)
-K8S_CACERT=${SERVICEAC}/ca.crt
-REDIS_HOST="localhost"
-## Set API Lists
-APILIST=(namespaces events configmaps secrets nodes pods services persistentvolumeclaims persistentvolumes replicasets daemonsets deployments)
-APILIST_DIR[0]="/api/v1/namespaces"
-APILIST_DIR[1]="/api/v1/events"
-APILIST_DIR[2]="/api/v1/configmaps"
-APILIST_DIR[3]="/api/v1/secrets"
-APILIST_DIR[4]="/api/v1/nodes"
-APILIST_DIR[5]="/api/v1/pods"
-APILIST_DIR[6]="/api/v1/services"
-APILIST_DIR[7]="/api/v1/persistentvolumeclaims"
-APILIST_DIR[8]="/api/v1/persistentvolumes"
-APILIST_DIR[9]="/apis/apps/v1/replicasets"
-APILIST_DIR[10]="/apis/apps/v1/daemonsets"
-APILIST_DIR[11]="/apis/apps/v1/deployments"
-######################
-echo -n "VVVVVVVVVVV : "
-$REDISCMD --version
-while : 
-do 
-  for i in ${!APILIST[@]}; do
-        echo -n -e ${APILIST[$i]} ": "
-        curl -sL --cacert ${K8S_CACERT} --header "Authorization: Bearer ${K8S_TOKEN}" -X GET ${K8S_API_SVR}${APILIST_DIR[$i]} > temp
-        $REDISCMD -h ${REDIS_HOST} -x HMSET ${KEY} ${APILIST[$i]} < temp
-  done
-  sleep 10; 
+K8S_SERVICE_AC="/var/run/secrets/kubernetes.io/serviceaccount"
+K8S_NAMESPACE=$(cat ${K8S_SERVICE_AC}/namespace)
+K8S_TOKEN=$(cat ${K8S_SERVICE_AC}/token)
+K8S_CACERT=${K8S_SERVICE_AC}/ca.crt
+##### api list get
+apis_list=`curl -sL --cacert ${K8S_CACERT} --header "Authorization: Bearer ${K8S_TOKEN}" -X GET ${K8S_API_SVR}/apis/apps/v1 |jq '.resources[].name' | egrep -v '/' |awk -F "\"" '{print $2}'`
+api_list=`curl -sL --cacert ${K8S_CACERT} --header "Authorization: Bearer ${K8S_TOKEN}" -X GET ${K8S_API_SVR}/api/v1 |jq '.resources[].name' | egrep -v '/'|awk -F "\"" '{print $2}'`
+#####
+
+## Run script every 10 seconds
+while :
+do
+	echo $(date "+%Y%m%d_%H%M%S") "----------"
+########## API json to Redis
+# /apis/apps/v1
+	for i in $apis_list; do
+		curl -sL --cacert ${K8S_CACERT} --header "Authorization: Bearer ${K8S_TOKEN}" -X GET ${K8S_API_SVR}/apis/apps/v1/$i > /tmp/${i}.json
+		echo -n "$i : "
+		$REDIS_CMD -h ${REDIS_HOST} -x HMSET ${REDIS_KEY} $i < /tmp/${i}.json
+	done
+# /api/v1
+	for x in $api_list; do
+		curl -sL --cacert ${K8S_CACERT} --header "Authorization: Bearer ${K8S_TOKEN}" -X GET ${K8S_API_SVR}/api/v1/$x > /tmp/${x}.json
+		echo -n "$x : "
+		$REDIS_CMD -h ${REDIS_HOST} -x HMSET ${REDIS_KEY} $x < /tmp/${x}.json
+	done
+# /version
+	curl -sL --cacert ${K8S_CACERT} --header "Authorization: Bearer ${K8S_TOKEN}" -X GET ${K8S_API_SVR}/version > /tmp/version.json
+	echo -n "version : "
+	$REDIS_CMD -h ${REDIS_HOST} -x HMSET ${REDIS_KEY} version </tmp/version.json
+########## API json to Redis
+	echo "----------------------------"
+	sleep 10
 done

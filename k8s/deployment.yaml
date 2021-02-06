@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: metricops
-  namespace: nex-system
+  namespace: nexclipper
 spec:
   replicas: 1
   selector:

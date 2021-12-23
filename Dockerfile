@@ -1,6 +1,6 @@
 FROM redis:alpine
 #FROM redis:alpine3.12
-LABEL maintainer="NexCloud Jinwoong <jinwoong@nexclipper.io>"
+LABEL maintainer="NexClipper Ryan <ryan@nexclipper.io>"
 
 ENV WKDIR=/data
 
